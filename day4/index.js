@@ -51,8 +51,8 @@ const heightValidator = (input) => {
 }
 
 const hclValidator = (input) => !!input.match(/#[0-9a-f]{6}/)
-const eclValidator = (input) => ~['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth'].indexOf(input)
-const pidValidator = (input) => !!input.match(/[0-9]{9}/)
+const eclValidator = (input) => ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth'].indexOf(input) !== -1
+const pidValidator = (input) => !!input.match(/^[0-9]{9}$/)
 
 const validators = {
   byr: makeYearValidator(1920, 2002),
@@ -69,20 +69,19 @@ expectedNumFields = Object.keys(validators).length
 
 const checkPassport = (acc, passport) => {
   const fields = passport.replace(/\n/g, ' ').trim().split(' ')
-  console.log('checking passport ', fields.join(','))
   let keyStr = ''
   let valid = fields.every((field) => {
     const [key, value] = field.split(':')
     keyStr += key
     const validField = validators[key](value)
-    console.log(`${key} =  '${value}' ${validField ? 'valid': 'invalid'}`)
     return validField
   })
   if(!simpleValidator(keyStr, required)) {
     valid = false
   }
-  console.log('valid? ', valid)
+
   if(valid) {
+    // console.log('valid passport ', fields.filter((field) => !~field.indexOf('cid')).sort().join(', '))  
     acc += 1
   }
   return acc
@@ -92,32 +91,55 @@ const numValid2 = passports.reduce(checkPassport, 0)
 
 console.log('numValid 2', numValid2)
 
-const invalidPassports = `eyr:1972 cid:100
-hcl:#18171d ecl:amb hgt:170 pid:186cm iyr:2018 byr:1926
 
-iyr:2019
-hcl:#602927 eyr:1967 hgt:170cm
-ecl:grn pid:012533040 byr:1946
+// Testing
+// const invalidPassports = `eyr:1972 cid:100
+// hcl:#18171d ecl:amb hgt:170 pid:186cm iyr:2018 byr:1926
 
-hcl:dab227 iyr:2012
-ecl:brn hgt:182cm pid:021572410 eyr:2020 byr:1992 cid:277
+// iyr:2019
+// hcl:#602927 eyr:1967 hgt:170cm
+// ecl:grn pid:012533040 byr:1946
 
-hgt:59cm ecl:zzz
-eyr:2038 hcl:74454a iyr:2023
-pid:3556412378 byr:2007`.split('\n\n')
+// hcl:dab227 iyr:2012
+// ecl:brn hgt:182cm pid:021572410 eyr:2020 byr:1992 cid:277
 
-const validPassports = `pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980
-hcl:#623a2f
+// hgt:59cm ecl:zzz
+// eyr:2038 hcl:74454a iyr:2023
+// pid:3556412378 byr:2007`.split('\n\n')
 
-eyr:2029 ecl:blu cid:129 byr:1989
-iyr:2014 pid:896056539 hcl:#a97842 hgt:165cm
+// const validPassports = `pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980
+// hcl:#623a2f
 
-hcl:#888785
-hgt:164cm byr:2001 iyr:2015 cid:88
-pid:545766238 ecl:hzl
-eyr:2022
+// eyr:2029 ecl:blu cid:129 byr:1989
+// iyr:2014 pid:896056539 hcl:#a97842 hgt:165cm
 
-iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719`.split('\n\n')
+// hcl:#888785
+// hgt:164cm byr:2001 iyr:2015 cid:88
+// pid:545766238 ecl:hzl
+// eyr:2022
+
+// iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719`.split('\n\n')
 
 // console.log('test invalid passports: ', invalidPassports.reduce(checkPassport, 0) == 0)
 // console.log('test valid passports: ', validPassports.reduce(checkPassport, 0) == validPassports.length)
+// console.log('byr valid:   2002 ', makeYearValidator(1920, 2002)(2002) == true)
+// console.log('byr invalid:   2003 ', makeYearValidator(1920, 2002)(2003) == false)
+// console.log('byr invalid:   1919 ', makeYearValidator(1920, 2002)(1919) == false)
+// console.log('hgt valid:   60in ', heightValidator('60in') == true)
+// console.log('hgt valid:   190cm ', heightValidator('190cm') == true)
+// console.log('hgt invalid:   190in ', heightValidator('190in') == false)
+// console.log('hgt invalid:   149cm ', heightValidator('149cm') == false)
+// console.log('hgt invalid:   194cm ', heightValidator('194cm') == false)
+// console.log('hgt invalid:   58in ', heightValidator('58in') == false)
+// console.log('hgt invalid:   78in ', heightValidator('78in') == false)
+// console.log('hgt invalid:   190 ', heightValidator('190') == false)
+
+// console.log('hcl valid:   #123abc ', hclValidator('#123abc') == true)
+// console.log('hcl invalid:   #123abz ', hclValidator('#123abz') == false)
+// console.log('hcl invalid:   123abc ', hclValidator('123abc') == false)
+
+// console.log('ecl valid:   brn ', eclValidator('brn') == true)
+// console.log('ecl invalid:   wat ', eclValidator('wat') == false)
+
+// console.log('pid valid:   000000001 ', pidValidator('000000001') == true)
+// console.log('pid invalid: 0123456789 ', pidValidator('0123456789') == false)
