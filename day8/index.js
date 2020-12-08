@@ -82,9 +82,6 @@ console.log('runProgramme ', runProgramme(testLines))
 const lines = input.split('\n')
 const programmeResult = runProgramme(lines)
 
-const lineToFix = programmeResult.linesExecuted.slice(-1)
-console.log('programmeResult ', programmeResult.counter, lineToFix, lines[lineToFix])
-
 // Part 2
 const testFixedProgramme = `
 nop +0
@@ -110,7 +107,24 @@ for(let i = 0;i < lines.length;i++) {
   }
   const fixedResult = runProgramme(fixedProgramme)
   if(fixedResult.terminated) {
-    console.log('fixedProgramme ', fixedResult.counter, fixedResult.linesExecuted.slice(-1))
+    console.log('fixedProgramme in ', i, fixedResult.counter, fixedResult.linesExecuted.slice(-1))
     break
   }
 }
+
+//Faster?
+programmeResult.linesExecuted.reverse().every((lineToCheck, i) => {
+  const fixedProgramme = lines.slice(0)
+  const line = fixedProgramme[lineToCheck]
+  if(line.indexOf('jmp') === 0) {
+    fixedProgramme[lineToCheck] = line.replace('jmp', 'nop')
+  } else if(line.indexOf('nop') === 0) {
+    fixedProgramme[lineToCheck] = line.replace('nop', 'jmp')
+  }
+  const fixedResult = runProgramme(fixedProgramme)
+  if(fixedResult.terminated) {
+    console.log('fixedProgramme in ', i, fixedResult.counter, fixedResult.linesExecuted.slice(-1))
+    return false
+  }
+  return true
+})
